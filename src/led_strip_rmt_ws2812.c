@@ -61,8 +61,7 @@ typedef struct {
  * @param[out] translated_size: number of source data that got converted
  * @param[out] item_num: number of RMT items which are converted from source data
  */
-static void IRAM_ATTR ws2812_rmt_adapter(const void *src, rmt_item32_t *dest, size_t src_size,
-        size_t wanted_num, size_t *translated_size, size_t *item_num)
+static void IRAM_ATTR ws2812_rmt_adapter(const void *src, rmt_item32_t *dest, size_t src_size, size_t wanted_num, size_t *translated_size, size_t *item_num)
 {
     if (src == NULL || dest == NULL) {
         *translated_size = 0;
@@ -103,6 +102,21 @@ static esp_err_t ws2812_set_pixel(led_strip_t *strip, uint32_t index, uint32_t r
     ws2812->buffer[start + 0] = green & 0xFF;
     ws2812->buffer[start + 1] = red & 0xFF;
     ws2812->buffer[start + 2] = blue & 0xFF;
+    return ESP_OK;
+err:
+    return ret;
+}
+
+static esp_err_t ws2812_get_pixel(led_strip_t *strip, uint32_t index, uint8_t *red, uint8_t *green, uint8_t *blue)
+{
+    esp_err_t ret = ESP_OK;
+    ws2812_t *ws2812 = __containerof(strip, ws2812_t, parent);
+    STRIP_CHECK(index < ws2812->strip_len, "index out of the maximum number of leds", err, ESP_ERR_INVALID_ARG);
+    uint32_t start = index * 3;
+    // In thr order of GRB
+    *green = ws2812->buffer[start + 0];
+    *red = ws2812->buffer[start + 1];
+    *blue = ws2812->buffer[start + 2];
     return ESP_OK;
 err:
     return ret;
@@ -161,6 +175,7 @@ led_strip_t *led_strip_new_rmt_ws2812(const led_strip_config_t *config)
     ws2812->strip_len = config->max_leds;
 
     ws2812->parent.set_pixel = ws2812_set_pixel;
+    ws2812->parent.get_pixel = ws2812_get_pixel;
     ws2812->parent.refresh = ws2812_refresh;
     ws2812->parent.clear = ws2812_clear;
     ws2812->parent.del = ws2812_del;

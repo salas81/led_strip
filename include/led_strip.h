@@ -53,6 +53,22 @@ struct led_strip_s {
     esp_err_t (*set_pixel)(led_strip_t *strip, uint32_t index, uint32_t red, uint32_t green, uint32_t blue);
 
     /**
+    * @brief Get RGB for a specific pixel
+    *
+    * @param strip: LED strip
+    * @param index: index of pixel to set
+    * @param red: red part of color
+    * @param green: green part of color
+    * @param blue: blue part of color
+    *
+    * @return
+    *      - ESP_OK: Get RGB for a specific pixel successfully
+    *      - ESP_ERR_INVALID_ARG: Get RGB for a specific pixel failed because of invalid parameters
+    *      - ESP_FAIL: Get RGB for a specific pixel failed because other error occurred
+    */
+    esp_err_t (*get_pixel)(led_strip_t *strip, uint32_t index, uint8_t *red, uint8_t *green, uint8_t *blue);
+
+    /**
     * @brief Refresh memory colors to LEDs
     *
     * @param strip: LED strip
